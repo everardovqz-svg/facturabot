@@ -113,7 +113,7 @@ async def procesar_ticket(imagen_bytes: bytes, mime_type: str = "image/jpeg") ->
                     },
                     {
                         "type": "text",
-                        "text": "Transcribe todo el texto que ves en este ticket o recibo exactamente como aparece, de arriba a abajo, sin omitir nada. Solo el texto, sin comentarios ni explicaciones."
+                        "text": "Transcribe todo el texto que ves en este ticket o recibo exactamente como aparece, de arriba a abajo, sin omitir nada. Solo el texto, sin comentarios ni explicaciones.\n\nPresta especial atención a los números — transcríbelos con máxima precisión. Si tienes duda entre un 9 y un 5, o entre un 6 y un 8, descríbelo tal como aparece en el ticket sin interpretar. Es mejor transcribir exacto que interpretar mal."
                     }
                 ],
             }]
@@ -140,7 +140,7 @@ Reglas:
 - fecha en formato DD/MM/YYYY
 - total es el monto final, no el subtotal
 - tc son solo dígitos, no confundir con CSH o ID CASHI
-- folio es el número principal del comprobante, no el número de estación
+- folio es el número principal del comprobante, no el número de estación; copia el número exactamente como aparece en la transcripción, sin modificar ningún dígito
 - si un dato no aparece déjalo vacío
 - si un número es ambiguo escribe las dos posibilidades separadas por /"""
             }]
