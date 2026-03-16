@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% set show_nav = true %}
+{% block title %}Tickets — FacturaBot{% endblock %}
+{% block content %}
+<div class="container">
+
+  <!-- Encabezado -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;">
+    <div>
+      <h1 style="font-size:20px;font-weight:normal;">{{ empresa.nombre }}</h1>
+      <p style="font-family:monospace;font-size:12px;color:var(--muted);">
+        Código de empresa para Telegram: <strong>{{ empresa_id[:8].upper() }}</strong>
+        <span style="opacity:0.5;">— compártelo con tus empleados</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pestañas de filtro -->
+  <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;">
+    <a href="/dashboard?filtro=pendiente"
+       class="btn {% if filtro == 'pendiente' %}btn-primary{% endif %} btn-sm">
+      Pendientes
+      {% if conteos.pendiente > 0 %}
+      <span style="background:var(--amber);color:#fff;border-radius:99px;padding:1px 6px;font-size:10px;">{{ conteos.pendiente }}</span>
+      {% endif %}
+    </a>
+    <a href="/dashboard?filtro=facturado"
+       class="btn {% if filtro == 'facturado' %}btn-primary{% endif %} btn-sm">
+      Facturados ({{ conteos.facturado }})
+    </a>
+    <a href="/dashboard?filtro=ignorado"
+       class="btn {% if filtro == 'ignorado' %}btn-primary{% endif %} btn-sm">
+      Ignorados ({{ conteos.ignorado }})
+    </a>
+  </div>
+
+  <!-- Zona de upload -->
+  <div id="drop-zone" style="border:2px dashed var(--border-strong);border-radius:var(--r);padding:2rem;text-align:center;margin-bottom:1rem;cursor:pointer;transition:background 0.15s,border-color 0.15s;">
+    <div style="font-size:28px;margin-bottom:8px;">📎</div>
+    <p style="font-family:monospace;font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Arrastra una imagen aquí o
+    </p>
+    <label for="file-input" class="btn btn-sm" style="cursor:pointer;">Buscar archivo</label>
+    <input id="file-input" type="file" accept="image/*" style="display:none;">
+    <p style="font-family:monospace;font-size:11px;color:var(--faint);margin-top:10px;">Ctrl+V · arrastrar · o buscar archivo</p>
+  </div>
+
+  <!-- Barra de estatus OCR -->
+  <div id="ocr-status" style="display:none;border-radius:var(--r);padding:12px 16px;margin-bottom:1rem;font-family:monospace;font-size:13px;display:none;align-items:center;gap:10px;">
+    <span id="ocr-status-icon" style="font-size:16px;flex-shrink:0;"></span>
+    <div style="flex:1;min-width:0;">
+      <div id="ocr-status-msg" style="font-weight:600;margin-bottom:2px;"></div>
+      <div id="ocr-status-detail" style="font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-word;"></div>
+    </div>
+  </div>
+
+  <!-- Lista de tickets -->
+  {% if tickets %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    {% for ticket in tickets %}
+    <a href="/ticket/{{ ticket.id }}" style="display:block;">
+      <div class="ticket-row">
+
+        <!-- Imagen miniatura -->
+        {% if ticket.imagen_url %}
+        <img src="{{ ticket.imagen_url }}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;" />
+        {% else %}
+        <div style="width:44px;height:44px;background:var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧾</div>
+        {% endif %}
+
+        <!-- Datos principales -->
+        <div style="flex:1;min-width:0;">
+          <div class="ticket-negocio">{{ ticket.negocio or "Negocio no identificado" }}</div>
+          <div class="ticket-meta">
+            {{ ticket.fecha_ticket or "—" }}
+            {% if ticket.numero_ticket %} · Ticket {{ ticket.numero_ticket }}{% endif %}
+          </div>
+        </div>
+
+        <!-- Total y estado -->
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="ticket-total">{{ ticket.total or "—" }}</div>
+          <div style="margin-top:3px;">
+            <span class="badge badge-{{ ticket.estado }}">{{ ticket.estado }}</span>
+          </div>
+        </div>
+
+        <!-- Alerta de vencimiento próximo -->
+        {% if ticket.fecha_vencimiento and ticket.estado == 'pendiente' %}
+        <div style="font-family:monospace;font-size:10px;color:var(--amber);flex-shrink:0;">⏱</div>
+        {% endif %}
+
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <div style="font-size:36px;margin-bottom:12px;opacity:0.3;">🧾</div>
+    <p style="font-size:15px;margin-bottom:8px;">
+      {% if filtro == 'pendiente' %}No hay tickets pendientes{% endif %}
+      {% if filtro == 'facturado' %}No hay tickets facturados aún{% endif %}
+      {% if filtro == 'ignorado' %}No hay tickets ignorados{% endif %}
+    </p>
+    {% if filtro == 'pendiente' %}
+    <p style="font-family:monospace;font-size:12px;color:var(--muted);">
+      Manda fotos de tus tickets al bot de Telegram y aparecerán aquí.
+    </p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Instrucciones del bot -->
+  <div class="card" style="margin-top:1.5rem;background:var(--surface2);">
+    <p style="font-family:monospace;font-size:12px;color:var(--muted);line-height:1.7;">
+      <strong style="color:var(--text);">¿Cómo agregar empleados?</strong><br>
+      Diles que busquen tu bot en Telegram y escriban:<br>
+      <code style="background:var(--surface);padding:2px 6px;border-radius:4px;">CODIGO {{ empresa_id[:8].upper() }}</code>
+    </p>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+// ─── Barra de estatus ─────────────────────────────────────────────────────────
+const statusBox  = document.getElementById('ocr-status');
+const statusIcon = document.getElementById('ocr-status-icon');
+const statusMsg  = document.getElementById('ocr-status-msg');
+const statusDetail = document.getElementById('ocr-status-detail');
+
+function setStatus(state, msg, detail = '') {
+  statusBox.style.display = 'flex';
+  statusMsg.textContent    = msg;
+  statusDetail.textContent = detail;
+
+  if (state === 'loading') {
+    statusBox.style.background  = 'var(--surface2)';
+    statusBox.style.border      = '1px solid var(--border)';
+    statusBox.style.color       = 'var(--text)';
+    statusIcon.textContent      = '⏳';
+  } else if (state === 'ok') {
+    statusBox.style.background  = '#0d2b1a';
+    statusBox.style.border      = '1px solid #1a5c35';
+    statusBox.style.color       = '#4ade80';
+    statusIcon.textContent      = '✅';
+  } else if (state === 'error') {
+    statusBox.style.background  = '#2b0d0d';
+    statusBox.style.border      = '1px solid #7f1d1d';
+    statusBox.style.color       = '#f87171';
+    statusIcon.textContent      = '❌';
+  }
+}
+
+// ─── Función compartida de upload ────────────────────────────────────────────
+async function subirImagen(file) {
+  setStatus('loading', 'Leyendo ticket…', `Archivo: ${file.name || 'imagen'} (${(file.size/1024).toFixed(0)} KB)`);
+  const form = new FormData();
+  form.append('file', file, file.name || 'ticket.png');
+  try {
+    const res  = await fetch('/upload', { method: 'POST', body: form });
+    const data = await res.json();
+    if (data.ok) {
+      const negocio = data.negocio || 'Negocio no identificado';
+      const total   = data.total   ? ` · $${data.total}` : '';
+      const fecha   = data.fecha_ticket ? ` · ${data.fecha_ticket}` : '';
+      setStatus('ok', 'Ticket procesado correctamente', `${negocio}${total}${fecha} — recargando…`);
+      setTimeout(() => location.reload(), 1800);
+    } else {
+      setStatus('error', 'Error al procesar el ticket', data.error || 'Intenta de nuevo.');
+    }
+  } catch(err) {
+    setStatus('error', 'Error de conexión', err.message || 'No se pudo contactar al servidor.');
+  }
+}
+
+// ─── Drag & drop ─────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.style.background = 'var(--surface2)';
+  dropZone.style.borderColor = 'var(--text)';
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.style.background = '';
+  dropZone.style.borderColor = '';
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.style.background = '';
+  dropZone.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) subirImagen(file);
+  else mostrarToast('⚠️ Solo se aceptan imágenes');
+});
+
+// ─── Input de archivo ─────────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) subirImagen(file);
+});
+
+// ─── Pegar imagen con Ctrl+V desde cualquier lugar del dashboard ─────────────
+document.addEventListener('paste', async (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (!file) return;
+
+      await subirImagen(file);
+      break;
+    }
+  }
+});
+
+
+}); // DOMContentLoaded
+</script>
+
+{% endblock %}

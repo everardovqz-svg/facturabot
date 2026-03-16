@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FacturaBot{% endblock %}</title>
+<style>
+  :root {
+    --bg: #F7F6F2; --surface: #fff; --surface2: #F0EEE9;
+    --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.18);
+    --text: #1A1917; --muted: #6B6A66; --faint: #9E9D99;
+    --green: #2D6A4F; --green-bg: #EAF4EE; --green-border: #A8D5BE;
+    --amber: #92500A; --amber-bg: #FEF3E2;
+    --red: #8B1A1A; --red-bg: #FDECEC;
+    --r: 10px; --rs: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Nav */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+  .nav-brand { font-size: 16px; font-weight: normal; letter-spacing: -0.3px; }
+  .nav-brand span { opacity: 0.5; }
+  .nav-links { display: flex; gap: 1rem; align-items: center; }
+  .nav-links a { font-family: monospace; font-size: 12px; color: var(--muted); padding: 4px 10px; border-radius: var(--rs); transition: background 0.1s; }
+  .nav-links a:hover { background: var(--surface2); }
+
+  /* Contenedor */
+  .container { max-width: 780px; margin: 0 auto; padding: 2rem 1rem; }
+
+  /* Card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1rem; }
+
+  /* Botones */
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-family: monospace; font-size: 13px; padding: 9px 18px; border-radius: var(--rs); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.1s; text-decoration: none; }
+  .btn:hover { background: var(--surface2); }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: transparent; }
+  .btn-primary:hover { opacity: 0.85; background: var(--text); }
+  .btn-green { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+  .btn-green:hover { background: #D5EDE3; }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+
+  /* Badges */
+  .badge { display: inline-block; font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+  .badge-pendiente { background: var(--amber-bg); color: var(--amber); }
+  .badge-facturado { background: var(--green-bg); color: var(--green); }
+  .badge-ignorado { background: var(--surface2); color: var(--faint); }
+
+  /* Formularios */
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-family: monospace; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .form-group input { width: 100%; border: 1px solid var(--border-strong); border-radius: var(--rs); padding: 9px 12px; font-family: monospace; font-size: 14px; background: var(--surface2); color: var(--text); outline: none; }
+  .form-group input:focus { border-color: var(--text); background: var(--surface); }
+  .form-error { font-family: monospace; font-size: 12px; color: var(--red); background: var(--red-bg); padding: 8px 12px; border-radius: var(--rs); margin-bottom: 1rem; }
+
+  /* Tabla de tickets */
+  .ticket-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .ticket-row:last-child { border-bottom: none; }
+  .ticket-row:hover { background: var(--surface2); }
+  .ticket-negocio { font-size: 14px; flex: 1; }
+  .ticket-meta { font-family: monospace; font-size: 12px; color: var(--muted); }
+  .ticket-total { font-family: monospace; font-size: 14px; font-weight: bold; min-width: 80px; text-align: right; }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+{% if show_nav %}
+<nav>
+  <div class="nav-brand">🧾 Factura<span>Bot</span></div>
+  <div class="nav-links">
+    <a href="/dashboard">Tickets</a>
+    <a href="/logout">Salir</a>
+  </div>
+</nav>
+{% endif %}
+{% block content %}{% endblock %}
+</body>
+</html>

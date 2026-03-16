@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Registro — FacturaBot{% endblock %}
+{% block content %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div style="width:100%;max-width:400px;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="font-size:36px;margin-bottom:8px;">🧾</div>
+      <h1 style="font-size:22px;font-weight:normal;letter-spacing:-0.5px;">Crear cuenta</h1>
+      <p style="font-family:monospace;font-size:13px;color:var(--muted);margin-top:4px;">FacturaBot · 7 días gratis</p>
+    </div>
+    <div class="card">
+      {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+      <form method="post" action="/registro">
+        <div class="form-group">
+          <label>Nombre de tu negocio</label>
+          <input type="text" name="nombre" placeholder="Tacos El Güero SA de CV" required autofocus />
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" name="email" placeholder="admin@tunegocio.com" required />
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="Mínimo 6 caracteres" required />
+        </div>
+
+        <!-- Teléfono opcional con explicación clara -->
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:6px;">
+            Teléfono celular
+            <span style="font-family:monospace;font-size:10px;background:var(--surface2);color:var(--muted);padding:2px 6px;border-radius:99px;">opcional</span>
+          </label>
+          <input type="tel" name="telefono" placeholder="5512345678" />
+          <p style="font-family:monospace;font-size:11px;color:var(--faint);margin-top:5px;line-height:1.5;">
+            📱 Solo necesario si quieres enviar tickets por Telegram automáticamente.<br>
+            Puedes agregarlo después en tu perfil.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+          Crear cuenta →
+        </button>
+      </form>
+    </div>
+    <p style="text-align:center;font-family:monospace;font-size:12px;color:var(--muted);margin-top:1rem;">
+      ¿Ya tienes cuenta? <a href="/" style="color:var(--text);text-decoration:underline;">Entrar</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

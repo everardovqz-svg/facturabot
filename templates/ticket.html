@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% set show_nav = true %}
+{% block title %}Ticket {{ ticket.negocio }} — FacturaBot{% endblock %}
+{% block content %}
+<div class="container" style="max-width:680px;">
+
+  <!-- Volver -->
+  <a href="/dashboard" class="btn btn-sm" style="margin-bottom:1rem;">← Volver</a>
+
+  <!-- Tarjeta principal -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:1rem;">
+      <div>
+        <h1 style="font-size:20px;font-weight:normal;margin-bottom:4px;">{{ ticket.negocio or "Negocio no identificado" }}</h1>
+        {% if ticket.rfc_negocio %}
+        <p style="font-family:monospace;font-size:11px;color:var(--muted);">RFC: {{ ticket.rfc_negocio }}</p>
+        {% endif %}
+      </div>
+      <span class="badge badge-{{ ticket.estado }}" style="font-size:12px;padding:4px 10px;">{{ ticket.estado }}</span>
+    </div>
+
+    <!-- Imagen del ticket -->
+    {% if ticket.imagen_url %}
+    <img src="{{ ticket.imagen_url }}" style="width:100%;max-height:300px;object-fit:contain;border-radius:6px;border:1px solid var(--border);margin-bottom:1rem;background:var(--surface2);" />
+    {% endif %}
+
+    <!-- Datos extraídos -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1rem;">
+
+      {% if ticket.fecha_ticket %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.fecha_ticket }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">FECHA</div>
+          <span class="icono-copiar">{% include '_copy_icon.html' ignore missing %}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.fecha_ticket }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.total %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.total }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">TOTAL</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;font-weight:bold;">{{ ticket.total }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.iva %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.iva }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">IVA</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.iva }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.subtotal %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.subtotal }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">SUBTOTAL</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.subtotal }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.forma_pago %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.forma_pago }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">FORMA DE PAGO</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.forma_pago }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.ieps %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.ieps }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">IEPS</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.ieps }}</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.cp %}
+      <div class="dato-card" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.cp }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-family:monospace;font-size:10px;color:var(--faint);margin-bottom:3px;">C.P.</div>
+          <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+        </div>
+        <div style="font-size:14px;">{{ ticket.cp }}</div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Portal de facturación + campos para copiar -->
+  {% if portal_info %}
+  <div class="card" style="margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+      <strong style="font-size:15px;">Facturar en {{ portal_info.nombre }}</strong>
+      <a href="{{ portal_info.url }}" target="_blank" class="btn btn-green">
+        🧾 Abrir portal →
+      </a>
+    </div>
+
+    {% if portal_info.dias_vencimiento %}
+    <div style="font-family:monospace;font-size:11px;color:var(--amber);background:var(--amber-bg);padding:6px 10px;border-radius:4px;margin-bottom:12px;">
+      ⏱ Vence en {{ portal_info.dias_vencimiento }} días desde la compra
+      {% if portal_info.horas_minimas %} · Espera {{ portal_info.horas_minimas }}h antes de facturar{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Campos que necesitas del ticket -->
+    <p style="font-family:monospace;font-size:11px;color:var(--faint);margin-bottom:8px;">LO QUE NECESITAS DEL TICKET</p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+
+      {% if ticket.numero_ticket %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.numero_ticket }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">No. de ticket</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.numero_ticket }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.numero_transaccion %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.numero_transaccion }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">No. de transacción</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.numero_transaccion }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.numero_caja %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.numero_caja }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">No. de caja</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.numero_caja }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.tc %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.tc }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">TC#</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.tc_display or ticket.tc }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.tr %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.tr }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">TR#</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.tr_display or ticket.tr }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.tda %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.tda }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">TDA#</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.tda_display or ticket.tda }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.op %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.op }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">OP#</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.op_display or ticket.op }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.web_id %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.web_id }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">WEB ID</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.web_id }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.autorizacion %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.autorizacion }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">Autorización</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.autorizacion }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.aprobacion %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.aprobacion }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">Aprobación</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.aprobacion }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.fecha_ticket %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.fecha_ticket }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">Fecha</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.fecha_ticket }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      {% if ticket.total %}
+      <div class="campo-row" onclick="copiar(this, this.dataset.val)" data-val="{{ ticket.total }}">
+        <span style="font-family:monospace;font-size:11px;color:var(--muted);min-width:140px;">Total</span>
+        <span style="font-family:monospace;font-size:13px;font-weight:bold;flex:1;">{{ ticket.total }}</span>
+        <span class="icono-copiar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      </div>
+      {% endif %}
+
+      <!-- RFC del cliente — lo ingresa el usuario -->
+      <div style="display:flex;align-items:center;gap:10px;background:var(--amber-bg);border-radius:6px;padding:9px 12px;">
+        <span style="font-family:monospace;font-size:11px;color:var(--amber);min-width:140px;">RFC (el tuyo)</span>
+        <span style="font-family:monospace;font-size:12px;color:var(--amber);flex:1;font-style:italic;">— lo ingresas tú en el portal</span>
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Texto completo extraído -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-family:monospace;font-size:11px;color:var(--faint);">TEXTO COMPLETO EXTRAÍDO</span>
+      <button class="btn btn-sm icono-copiar" onclick="copiar(this.parentElement, document.getElementById('texto-completo').textContent)">copiar todo</button>
+    </div>
+    <pre id="texto-completo" style="font-family:monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--text);">{{ ticket.texto_completo or "No disponible" }}</pre>
+  </div>
+
+  <!-- Acciones -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    {% if ticket.estado != 'facturado' %}
+    <form method="post" action="/ticket/{{ ticket.id }}/estado">
+      <input type="hidden" name="estado" value="facturado" />
+      <button type="submit" class="btn btn-green">✅ Marcar como facturado</button>
+    </form>
+    {% endif %}
+    {% if ticket.estado != 'ignorado' %}
+    <form method="post" action="/ticket/{{ ticket.id }}/estado">
+      <input type="hidden" name="estado" value="ignorado" />
+      <button type="submit" class="btn btn-sm">Ignorar ticket</button>
+    </form>
+    {% endif %}
+    {% if ticket.estado != 'pendiente' %}
+    <form method="post" action="/ticket/{{ ticket.id }}/estado">
+      <input type="hidden" name="estado" value="pendiente" />
+      <button type="submit" class="btn btn-sm">Mover a pendientes</button>
+    </form>
+    {% endif %}
+  </div>
+
+</div>
+
+<style>
+.dato-card {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.dato-card:hover { background: #E5E3DC; }
+
+.campo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.campo-row:hover { background: #E5E3DC; }
+
+.icono-copiar {
+  color: var(--faint);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.dato-card:hover .icono-copiar,
+.campo-row:hover .icono-copiar { color: var(--muted); }
+.icono-copiar.copiado { color: var(--green); font-size: 13px; font-weight: bold; }
+</style>
+
+<script>
+function copiar(elemento, valor) {
+  navigator.clipboard.writeText(valor).then(() => {
+    const icono = elemento.querySelector('.icono-copiar');
+    if (icono) {
+      const originalHTML = icono.innerHTML;
+      icono.innerHTML = '<span style="color:var(--green);font-size:12px;font-weight:500;">✓ copiado</span>';
+      setTimeout(() => { icono.innerHTML = originalHTML; }, 1500);
+    }
+  });
+}
+
+// Convertir URLs en el texto completo a enlaces clicables
+document.addEventListener('DOMContentLoaded', () => {
+  const pre = document.getElementById('texto-completo');
+  if (!pre) return;
+  const urlRegex = /(https?:\/\/[^\s,;]+|www\.[^\s,;]+\.[^\s,;]{2,})/gi;
+  pre.innerHTML = pre.textContent.replace(urlRegex, (url) => {
+    const href = url.startsWith('http') ? url : 'https://' + url;
+    return `<a href="${href}" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;">${url}</a>`;
+  });
+});
+</script>
+{% endblock %}
