@@ -74,9 +74,8 @@ async def login(
     res = (sb.table("empresas")
              .select("*")
              .eq("email", email.strip().lower())
-             .single()
              .execute())
-    empresa = res.data
+    empresa = res.data[0] if res.data else None
 
     if not empresa or empresa.get("password_hash") != hash_password(password):
         return templates.TemplateResponse(
@@ -155,11 +154,11 @@ async def dashboard(request: Request, filtro: str = "pendiente"):
         return RedirectResponse(url="/")
 
     sb = get_supabase()
-    empresa = (sb.table("empresas")
-                 .select("*")
-                 .eq("id", empresa_id)
-                 .single()
-                 .execute().data)
+    res = (sb.table("empresas")
+               .select("*")
+               .eq("id", empresa_id)
+               .execute())
+    empresa = res.data[0] if res.data else None
 
     estado_filtro = filtro if filtro in ("pendiente", "facturado", "ignorado") else "pendiente"
     tickets = db.obtener_tickets_empresa(empresa_id, estado=estado_filtro)
@@ -188,11 +187,11 @@ async def detalle_ticket(ticket_id: str, request: Request):
         return RedirectResponse(url="/")
 
     sb = get_supabase()
-    ticket = (sb.table("tickets")
-                .select("*")
-                .eq("id", ticket_id)
-                .single()
-                .execute().data)
+    res = (sb.table("tickets")
+               .select("*")
+               .eq("id", ticket_id)
+               .execute())
+    ticket = res.data[0] if res.data else None
 
     if not ticket or ticket["empresa_id"] != empresa_id:
         raise HTTPException(status_code=404, detail="Ticket no encontrado")
